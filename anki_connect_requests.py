@@ -1,5 +1,6 @@
 import requests
 import base64
+from uuid import uuid4
 ANKI_CONNECT_URL = "http://localhost:8765"
 
 def invoke(action, **params):
@@ -21,7 +22,7 @@ def get_anki_decks():
 
 def add_card_with_audio_bytes(deck_name: str, front: str, back: str, audio_bytes: bytes, filename: str):
     b64_data = base64.b64encode(audio_bytes).decode("utf-8")
-    invoke("storeMediaFile", filename=filename, data=b64_data)
+    invoke("storeMediaFile", filename=filename+str(uuid4().hex), data=b64_data)
 
     note = {
         "deckName": deck_name,

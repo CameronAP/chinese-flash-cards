@@ -11,7 +11,7 @@ from PySide6.QtWidgets import (
 import polars as pl
 from pypinyin import pinyin, Style
 from anki_connect_requests import get_anki_decks, add_card_with_audio_bytes
-from csv_to_flashcard import create_card
+from csv_to_flashcard import create_card, tts_func_map
 
 EMPTY_DECK = "-"
 
@@ -106,12 +106,13 @@ class CardUploadProgress(QDialog):
         self.progress.setValue(self.value)
 
 class CardUploadWorker(QObject):
-    def __init__(self, card_table: CardTable, eng_char_deck: str, char_pnyn_deck: str):
+    def __init__(self, card_table: CardTable, eng_char_deck: str, char_pnyn_deck: str, tts_type: str):
         self.cancel = False
         super().__init__()
         self.ct = card_table
         self.eng_char_deck = eng_char_deck
         self.char_pnyn_deck = char_pnyn_deck
+        self.tts_type = tts_type
 
     progress = Signal()
     finished = Signal()
@@ -120,7 +121,10 @@ class CardUploadWorker(QObject):
         no_rows = self.ct.rowCount()
         try:
             for i in range(no_rows):
-                card_details = create_card([self.ct.item(i, 0).text(), self.ct.item(i, 1).text(), self.ct.item(i, 2).text()])
+                card_details = create_card(
+                    [self.ct.item(i, 0).text(),self.ct.item(i, 1).text(), self.ct.item(i, 2).text()],
+                    self.tts_type
+                    )
                 add_card_with_audio_bytes(
                     deck_name=self.eng_char_deck,
                     front=card_details["eng_to_char"]["front"], 
@@ -168,6 +172,9 @@ class MFCAMainWindow(QMainWindow):
         layout.setContentsMargins(5, 0, 5, 0)
         layout.setAlignment(Qt.AlignTop)
 
+        tts_row, self.tts_box = self.create_tts_select("Select Text to Speech Option: ")
+        self.tts_box.currentTextChanged.connect(self.set_eng_char_deck)
+
         eng_char_row, self.eng_char_box = self.create_deck_select("English to Characters: ")
         self.eng_char_box.currentTextChanged.connect(self.set_eng_char_deck)
 
@@ -185,6 +192,7 @@ class MFCAMainWindow(QMainWindow):
         self.card_upload_prog = CardUploadProgress(self)
 
         layout.addLayout(self.create_ac_status())
+        layout.addLayout(tts_row)
         layout.addLayout(eng_char_row)
         layout.addLayout(char_pnyn_row)
         layout.addWidget(self.file_button)
@@ -225,6 +233,10 @@ class MFCAMainWindow(QMainWindow):
     def set_eng_char_deck(self, text: str):
         self.eng_char_deck = text
         QTimer.singleShot(0, self.eng_char_box.hidePopup)
+
+    def set_tts_type(self, text: str):
+        self.tts_type = text
+        QTimer.singleShot(0, self.tts_box.hidePopup)
     
     def set_char_pnyn_deck(self, text: str):
         self.char_pnyn_deck = text
@@ -260,7 +272,7 @@ class MFCAMainWindow(QMainWindow):
         self.card_upload_prog.init(no_rows)
 
         self.anki_thread = QThread()
-        self.anki_worker = CardUploadWorker(ct, self.eng_char_deck, self.char_pnyn_deck)
+        self.anki_worker = CardUploadWorker(ct, self.eng_char_deck, self.char_pnyn_deck, self.tts_type)
 
         self.anki_worker.moveToThread(self.anki_thread)
 
@@ -310,6 +322,15 @@ class MFCAMainWindow(QMainWindow):
                 border-radius: 7px;""" +
                 f"background-color: {colour};" + "}"
         )
+
+    def create_tts_select(self, label_text: str):
+        row = QHBoxLayout()
+        label = QLabel(label_text)
+        box = QComboBox(self)
+        box.addItems(list(tts_func_map.keys()))
+        row.addWidget(label)
+        row.addWidget(box)
+        return row, box
 
     def create_deck_select(self, label_text: str):
         row = QHBoxLayout()
