@@ -1,5 +1,5 @@
 import re
-from audio import text_to_voice_online, text_to_voice_elevenlabs
+from services.audio import text_to_voice_online, text_to_voice_elevenlabs
 
 class tts_types:
     online = "online"

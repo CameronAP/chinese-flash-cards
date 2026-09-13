@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chinese-flash-cards"
+version = "0.1.0"
+description = "Chinese Flash Card App"
+requires-python = ">=3.11"
+dependencies = [
+    "polars==1.44.2",
+    "elevenlabs==2.60.0", 
+    "PySide6==6.11.2",
+    "pypinyin==0.50.0"
+]
+[tool.setuptools.packages.find]
+where = ["src"]

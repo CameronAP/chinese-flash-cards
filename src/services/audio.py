@@ -33,23 +33,26 @@ def text_to_voice_online(text):
         "isGem": "0",
         "speechPrompt": "undefined"
     }
-
-    res_loc = requests.post(url + "scripts/awsRequest2.php", data=data)
-    file_loc = json.loads(res_loc.content)["content"]
-
-    res = requests.get(url + file_loc)
+    try:
+        res_loc = requests.post(url + "scripts/awsRequest2.php", data=data)
+        file_loc = json.loads(res_loc.content)["content"]
+        res = requests.get(url + file_loc)
+    except Exception as e:
+        raise ConnectionError(e)
     return res.content
 
 # Follow the instructions at https://elevenlabs.io/app/developers/api-key and https://elevenlabs.io/app/voice-lab to populate the values below
 ELL_VOICE_ID = "<VOICE_ID>"
 ELL_API_KEY = "<API_KEY>"
-
 def text_to_voice_elevenlabs(text):
     client = ElevenLabs(api_key=ELL_API_KEY)
-    audio_stream = client.text_to_speech.convert(
-        text=text,
-        voice_id=ELL_VOICE_ID,
-        model_id="eleven_multilingual_v2",
-        output_format="mp3_44100_128",
-    )
+    try:
+        audio_stream = client.text_to_speech.convert(
+            text=text,
+            voice_id=ELL_VOICE_ID,
+            model_id="eleven_multilingual_v2",
+            output_format="mp3_44100_128",
+        )
+    except Exception as e:
+        raise ConnectionError(e)
     return b"".join(audio_stream)

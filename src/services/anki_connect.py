@@ -20,6 +20,7 @@ def get_anki_decks():
         raise ConnectionError(error)
     return res["result"]
 
+
 def add_card_with_audio_bytes(deck_name: str, front: str, back: str, audio_bytes: bytes, filename: str):
     b64_data = base64.b64encode(audio_bytes).decode("utf-8")
     invoke("storeMediaFile", filename=filename+str(uuid4().hex), data=b64_data)
@@ -34,4 +35,7 @@ def add_card_with_audio_bytes(deck_name: str, front: str, back: str, audio_bytes
         "tags": ["auto", "audio"]
     }
     res = invoke("addNote", note=note)
+    error = res["error"]
+    if error != None:
+        raise ConnectionError(error)
     return res

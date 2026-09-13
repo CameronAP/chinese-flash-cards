@@ -42,13 +42,13 @@ An app that speeds up and partially automates flashcard creation for learning Ch
 
 4. **Install dependencies**
 ```bash
-   pip install -r requirements.txt
+   pip install -e .
 ```
 ## Usage
 
 ### 1. Choose an audio generation provider
 
-This app supports two audio generation backends: **texttovoice.online** and **ElevenLabs**. Choose whichever suits your needs and complete the corresponding setup below. All relevant links and variables are located in `audio.py`.
+This app supports two audio generation backends: **texttovoice.online** and **ElevenLabs**. Choose whichever suits your needs and complete the corresponding setup below. All relevant links and variables are located in `src/service/audio.py`.
 
 #### texttovoice.online
 
@@ -75,11 +75,15 @@ This app supports two audio generation backends: **texttovoice.online** and **El
 Once setup is complete, run the app with:
 
 ```bash
-python main.py
+./start.bat
+
+or 
+
+python src/main.py
 ```
 
 Once the app is running, use the dropdown at the top of the window to select your TTS provider (**texttovoice.online** or **ElevenLabs**).
 
 ## License
 
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
