@@ -28,6 +28,7 @@ class InitAnkiConnectWorker(QObject):
 class MFCAMainWindow(QMainWindow):
     decks = [EMPTY_DECK]
     ac_cnctd = False
+    tts_type = list(tts_func_map.keys())[0]
     def __init__(self):
         super().__init__()
         self.eng_char_deck = self.char_pnyn_deck = self.decks[0]
