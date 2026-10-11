@@ -23,14 +23,15 @@ def get_anki_decks():
 
 def add_card_with_audio_bytes(deck_name: str, front: str, back: str, audio_bytes: bytes, filename: str):
     b64_data = base64.b64encode(audio_bytes).decode("utf-8")
-    invoke("storeMediaFile", filename=filename+str(uuid4().hex), data=b64_data)
+    uuid_filename = filename+str(uuid4())
+    invoke("storeMediaFile", filename=uuid_filename, data=b64_data)
 
     note = {
         "deckName": deck_name,
         "modelName": "Basic",
         "fields": {
             "Front": front,
-            "Back": f"{back} [sound:{filename}]"
+            "Back": f"{back} [sound:{uuid_filename}]"
         },
         "tags": ["auto", "audio"]
     }
